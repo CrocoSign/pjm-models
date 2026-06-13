@@ -1,0 +1,49 @@
+[project]
+name = "signsdk"
+version = "0.1.8"
+description = "Repo-free inference SDK for PJM sign-language translation models (Uni-Sign, SpaMo)"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "python-dotenv",            # auto-loads .env (SIGNSDK_DEVICE, SIGNSDK_HOME, ...)
+    # CPU onnxruntime by default; for GPU install the `gpu` extra (see README).
+    # 1.24+ dropped cp310 wheels -> cap on <3.11, latest on 3.11+.
+    "onnxruntime<1.24; python_version < '3.11'",
+    "onnxruntime; python_version >= '3.11'",
+    "huggingface_hub",
+    "transformers",
+    "sentencepiece",
+    "protobuf",
+    "tiktoken",
+    "rtmlib",
+    "mediapipe",
+    "opencv-python",
+    "av",
+    "Pillow",
+]
+
+[project.optional-dependencies]
+# GPU bundle: onnxruntime-gpu (CUDA+TensorRT) + the CUDA 12 / cuDNN 9 runtime libs it
+# loads (a torch-free venv won't have them otherwise). NOTE: rtmlib (and base) pin plain
+# `onnxruntime`, which clobbers onnxruntime-gpu — your *project* must suppress it via:
+#   [tool.uv] override-dependencies = ["onnxruntime ; sys_platform == 'never'"]
+# Then SIGNSDK_DEVICE=cuda|cpu flips at runtime. See README.
+gpu = [
+    "onnxruntime-gpu<1.24; python_version < '3.11'",
+    "onnxruntime-gpu; python_version >= '3.11'",
+    "nvidia-cudnn-cu12",
+    "nvidia-cublas-cu12",
+    "nvidia-cuda-runtime-cu12",
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-curand-cu12",
+    "nvidia-cufft-cu12",
+]
+# FastAPI serving example (serving/app.py) — only needed to run the API, not for the SDK.
+serve = ["fastapi", "uvicorn[standard]", "python-multipart"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

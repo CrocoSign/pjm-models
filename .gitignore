@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+
+# local sample media / scratch outputs
+dev/samples/*.mp4
+*.onnx
+*.npy
+# exported ONNX artifacts incl. >2GB external-data weight files (no extension)
+dev/onnx/cache/
+dev/onnx/spamo_t5/
+# service
+service/.venv/
+
+# generated Go stubs (buf generate)
+/gen/
+
+# all exported ONNX artifacts (graphs + external-data weight files)
+dev/onnx/
+
+# nothing under dev/ belongs in git (runtime artifacts + samples)
+dev/
+
+# model store: symlinks to source weights (machine-specific) — keep configs/manifest only
+models/store/
