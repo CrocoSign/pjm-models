@@ -136,4 +136,4 @@ Our code is under the MIT licence (see `LICENSE`). The training data (PJM Corpus
 
 ## Authors
 
-Wojciech Sieńko and Rostyslav Kovalenko, PJATK engineering thesis (field: Artificial Intelligence), supervised by dr Albert Śledzianowski, MBA. We build on [Uni-Sign](https://github.com/ZechengLi19/Uni-Sign) (Li et al., ICLR 2025) and [SpaMo](https://github.com/eddie-euijun-hwang/SpaMo) (Hwang et al., NAACL 2025).
+[Wojciech Sieńko](https://www.linkedin.com/in/wojciech-sie%C5%84ko/) and [Rostyslav Kovalenko](https://www.linkedin.com/in/rost-koff/), PJATK engineering thesis (field: Artificial Intelligence), supervised by dr Albert Śledzianowski, MBA. We build on [Uni-Sign](https://github.com/ZechengLi19/Uni-Sign) (Li et al., ICLR 2025) and [SpaMo](https://github.com/eddie-euijun-hwang/SpaMo) (Hwang et al., NAACL 2025).
