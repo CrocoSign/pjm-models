@@ -61,7 +61,7 @@ Names follow `<family>-pjm-<transfer source>-<split>`. All output English.
 
 ### Test results (BLEU-4)
 
-Single run per cell, test set. The numbers come from our training repositories ([SpaMo-PJM](https://github.com/crocosign/SpaMo-PJM), [Uni-Sign-PJM](https://github.com/crocosign/Uni-Sign-PJM)) at beam 5; the SDK defaults differ (4 beams, 100 new tokens), so results from this package can differ slightly. **MS** = multi-signer: test signers also appear in training. **SI** = signer-independent: test signers are never seen in training.
+Single run per cell, test set. The numbers come from our training repositories ([SpaMo-PJM](https://github.com/crocosign/SpaMo-PJM), [Uni-Sign-PJM](https://github.com/crocosign/Uni-Sign-PJM)) at beam 5 for SpaMo and beam 4 for Uni-Sign. The SDK defaults are 4 beams and 100 new tokens, so SpaMo results from this package can differ slightly. **MS** = multi-signer: test signers also appear in training. **SI** = signer-independent: test signers are never seen in training.
 
 | Model | Transfer source | MS | SI |
 | --- | --- | --- | --- |
