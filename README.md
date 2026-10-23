@@ -10,7 +10,7 @@ All repositories are under [github.com/crocosign](https://github.com/crocosign):
 
 CrocoSign (data preparation) -> SpaMo-PJM / Uni-Sign-PJM (training) -> **pjm-models** (inference) -> croco-sign-backend / croco-sign-frontend (app).
 
-The models were trained on clips from the Open Repository of the PJM Corpus (University of Warsaw), prepared by us. [croco-corp/pjm-data](https://huggingface.co/datasets/croco-corp/pjm-data) publishes the features, splits, translations and videos of the filtered set; [croco-corp/pjm-segments](https://huggingface.co/datasets/croco-corp/pjm-segments) holds the unfiltered segments as WebDataset shards. The corpus is licensed for non-commercial use only, so treat the models the same way.
+The models were trained on clips from the Open Repository of the PJM Corpus (University of Warsaw), prepared by us. [croco-corp/pjm-data](https://huggingface.co/datasets/croco-corp/pjm-data) publishes the features, splits, translations and videos of the filtered set; [croco-corp/pjm-segments](https://huggingface.co/datasets/croco-corp/pjm-segments) holds the unfiltered segments as WebDataset shards. The corpus is licensed under CC BY-SA 4.0, and the model weights are released under the same licence.
 
 ## Requirements
 
@@ -132,7 +132,7 @@ The `Dockerfile` builds one image (GPU and serve extras) that runs on both GPU a
 
 ## License
 
-Our code is under the MIT licence (see `LICENSE`). The training data (PJM Corpus, University of Warsaw) is non-commercial only. The models build on Uni-Sign and SpaMo; their upstream terms apply to those parts.
+Our code is under the MIT licence (see `LICENSE`). The training data (PJM Corpus, University of Warsaw) and the model weights are under CC BY-SA 4.0. The models build on Uni-Sign and SpaMo; their upstream terms apply to those parts.
 
 ## Authors
 
