@@ -130,7 +130,8 @@ The `Dockerfile` builds one image (GPU and serve extras) that runs on both GPU a
 
 - Results are for research. On signers never seen in training (SI) every model does poorly; the best reaches 6.09 BLEU-4.
 - Most of the quality comes from the starting checkpoint, not the architecture. The best models started from American Sign Language checkpoints.
-- This repository is inference only. ONNX export, quantisation and publishing to Hugging Face are done in a separate build repository (`signsdk-build`), which is private. The ONNX export code is not public yet, so the ONNX files cannot be reproduced from public sources.
+- The ONNX graphs were exported with the scripts in `export/`: `export_unisign.py` runs from a Uni-Sign-PJM checkout, the `spamo_export_*.py` scripts from SpaMo-PJM. Quantisation and publishing to Hugging Face are done in a separate private build repository (`signsdk-build`).
+- For each Uni-Sign model, the ONNX package gives the same sentence as PyTorch in fp32 with batch size 1 on 20 test clips. The published test scores were decoded in bf16 and in batches, so single sentences can differ from them.
 
 ## License
 

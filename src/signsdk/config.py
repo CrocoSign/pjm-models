@@ -26,5 +26,9 @@ class GenerationConfig:
     top_p: float = 0.9
     seed: int = 42
 
+    def __post_init__(self):
+        if self.max_new_tokens < 1 or self.num_beams < 1:
+            raise ValueError("max_new_tokens and num_beams must be at least 1")
+
     def to_dict(self) -> dict:
         return asdict(self)

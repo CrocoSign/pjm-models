@@ -43,8 +43,8 @@ def models(backend: Optional[str] = None):
 async def translate(
     video: UploadFile = File(..., description="sign-language video clip (mp4)"),
     model: str = Form(signsdk.DEFAULT_MODEL),
-    num_beams: int = Form(4),
-    max_new_tokens: int = Form(64),
+    num_beams: int = Form(4, ge=1),
+    max_new_tokens: int = Form(64, ge=1),
 ):
     """Translate one uploaded sign-language video to text."""
     suffix = Path(video.filename or "clip.mp4").suffix or ".mp4"

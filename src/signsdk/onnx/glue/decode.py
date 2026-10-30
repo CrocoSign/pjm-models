@@ -108,32 +108,46 @@ def greedy(dec, eh, attn, start, eos, max_new_tokens):
 
 
 def beam_search(dec, eh, attn, start, eos, num_beams, max_new_tokens, lp=1.0):
+    """Beam search as transformers 4.40 BeamSearchScorer runs it (early_stopping=False), the decoder
+    behind the published Uni-Sign outputs: EOS only from the top num_beams candidates, at most
+    num_beams finished hypotheses, length counted with EOS, stop when the worst kept hypothesis
+    beats the best candidate score of the step."""
     if num_beams <= 1:
         return greedy(dec, eh, attn, start, eos, max_new_tokens)
     eh_r, attn_r = np.repeat(eh, num_beams, 0), np.repeat(attn, num_beams, 0)
     beam_scores = np.full(num_beams, -1e9); beam_scores[0] = 0.0
-    seqs, finished = [[start] for _ in range(num_beams)], []
+    seqs, hyps = [[start] for _ in range(num_beams)], []
+
+    def add(score, seq):
+        if len(hyps) < num_beams or score > min(h[0] for h in hyps):
+            hyps.append((score, seq))
+            if len(hyps) > num_beams:
+                hyps.remove(min(hyps, key=lambda h: h[0]))
+
+    done = False
     for _ in range(max_new_tokens):
         logits = dec.run(None, {"decoder_input_ids": np.array(seqs, np.int64),
                                 "encoder_hidden_states": eh_r, "encoder_attention_mask": attn_r})[0]
         V = logits.shape[-1]
-        scores = _log_softmax(logits[:, -1, :].astype(np.float64)) + beam_scores[:, None]
-        flat = scores.reshape(-1)
+        flat = (_log_softmax(logits[:, -1, :].astype(np.float64)) + beam_scores[:, None]).reshape(-1)
         top = np.argpartition(-flat, 2 * num_beams)[:2 * num_beams]
         top = top[np.argsort(-flat[top])]
+        gen_len = len(seqs[0])                                      # generated tokens incl. the new one
         ns, nsc = [], []
-        for idx in top:
+        for rank, idx in enumerate(top):
             bi, tok = idx // V, idx % V
             if tok == eos:
-                seq = seqs[bi][1:]
-                finished.append((flat[idx] / (max(len(seq), 1) ** lp), seq))
+                if rank < num_beams:
+                    add(flat[idx] / gen_len ** lp, seqs[bi][1:])
             else:
                 ns.append(seqs[bi] + [int(tok)]); nsc.append(float(flat[idx]))
             if len(ns) == num_beams:
                 break
         seqs, beam_scores = ns, np.array(nsc)
-        if len(finished) >= num_beams and max(s for s, _ in finished) >= beam_scores.max() / (len(seqs[0]) ** lp):
+        if len(hyps) >= num_beams and min(h[0] for h in hyps) >= flat[top[0]] / gen_len ** lp:
+            done = True
             break
-    for s, seq in zip(beam_scores, seqs):
-        finished.append((s / (max(len(seq) - 1, 1) ** lp), seq[1:]))
-    return max(finished, key=lambda x: x[0])[1]
+    if not done:
+        for s, seq in zip(beam_scores, seqs):
+            add(s / (len(seq) - 1) ** lp, seq[1:])
+    return max(hyps, key=lambda h: h[0])[1]

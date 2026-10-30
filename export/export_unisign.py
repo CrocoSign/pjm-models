@@ -14,19 +14,19 @@ import os
 import sys
 import tempfile
 
-def export_graphs(checkpoint, out_dir, repo):
+def export_graphs(checkpoint, out_dir, repo, device="cuda"):
     """Export the 3 graphs; needs the Uni-Sign ``repo`` (models.py/datasets.py)."""
     cwd = os.getcwd()
     if repo not in sys.path:
         sys.path.insert(0, repo)
     os.chdir(repo)
     try:
-        _export(checkpoint, out_dir)
+        _export(checkpoint, out_dir, device)
     finally:
         os.chdir(cwd)
 
 
-def _export(checkpoint, out_dir):
+def _export(checkpoint, out_dir, device):
     import numpy as np, torch, torch.nn as nn, h5py
     from types import SimpleNamespace
     from torch.utils.data import DataLoader
@@ -35,7 +35,7 @@ def _export(checkpoint, out_dir):
 
     margs = SimpleNamespace(dataset="PJM", task="SLT", pjm_split="si", max_length=256,
                             hidden_dim=256, rgb_support=False, label_smoothing=0.2)
-    model = Uni_Sign(args=margs).cuda().eval()
+    model = Uni_Sign(args=margs).to(device).eval()
     ret = model.load_state_dict(torch.load(checkpoint, map_location="cpu")["model"], strict=False)
     assert not ret.missing_keys and not ret.unexpected_keys, (ret.missing_keys, ret.unexpected_keys)
     mt5 = model.mt5_model.float()
@@ -80,7 +80,7 @@ def _export(checkpoint, out_dir):
     src, tgt = next(iter(DataLoader(ds, batch_size=1, collate_fn=ds.collate_fn)))
     for k in src:
         if hasattr(src[k], "cuda"):
-            src[k] = src[k].cuda().float() if src[k].is_floating_point() else src[k].cuda()
+            src[k] = src[k].to(device).float() if src[k].is_floating_point() else src[k].to(device)
     body, left, right, face = (src[k] for k in ["body", "left", "right", "face_all"])
 
     os.makedirs(out_dir, exist_ok=True)
@@ -101,7 +101,7 @@ def _export(checkpoint, out_dir):
                       opset_version=17, do_constant_folding=True)
     with torch.no_grad():
         eh = enc(ie, am)
-    di = torch.tensor([[mt5.config.decoder_start_token_id, 100, 200]], device="cuda")
+    di = torch.tensor([[mt5.config.decoder_start_token_id, 100, 200]], device=device)
     torch.onnx.export(dec, (di, eh, am), f"{out_dir}/decoder.onnx",
                       input_names=["decoder_input_ids", "encoder_hidden_states", "encoder_attention_mask"],
                       output_names=["logits"],
@@ -110,7 +110,7 @@ def _export(checkpoint, out_dir):
                       opset_version=17, do_constant_folding=True)
     with torch.no_grad():
         pt = model.mt5_tokenizer([f"Translate sign language video to {model.lang}: "],
-                                 padding="longest", return_tensors="pt").to("cuda")
+                                 padding="longest", return_tensors="pt").to(device)
         np.save(f"{out_dir}/prefix.npy", mt5.encoder.embed_tokens(pt["input_ids"]).float().cpu().numpy())
     with open(f"{out_dir}/meta.json", "w") as f:
         json.dump({"decoder_start_token_id": int(mt5.config.decoder_start_token_id),
@@ -123,5 +123,6 @@ if __name__ == "__main__":
     ap.add_argument("checkpoint", help="best_checkpoint.pth, absolute path")
     ap.add_argument("out_dir", help="output directory, absolute path")
     ap.add_argument("--repo", required=True, help="Uni-Sign-PJM checkout (needs dataset/PJM/pose_format/004_000_M.pkl)")
+    ap.add_argument("--device", default="cuda", help="torch device for the export, e.g. cpu")
     a = ap.parse_args()
-    export_graphs(a.checkpoint, a.out_dir, a.repo)
+    export_graphs(a.checkpoint, a.out_dir, a.repo, a.device)
