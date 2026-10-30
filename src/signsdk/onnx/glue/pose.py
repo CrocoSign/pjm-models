@@ -1,5 +1,5 @@
 """Uni-Sign pose preprocessing, extracted from the repo (datasets.py) as repo-free
-numpy. Turns rtmlib 134-keypoint wholebody output into the 4 part-streams
+numpy. Turns rtmlib COCO-WholeBody (133-keypoint) output into the 4 part-streams
 (body/left/right/face_all) the pose projector consumes.
 
 Faithful reimplementation of Uni-Sign's crop_scale + load_part_kp + frame
@@ -36,7 +36,7 @@ def crop_scale(motion, thr=THR):
 
 
 def load_part_kp(skeletons, confs):
-    """skeletons: list of (1,134,2), confs: list of (1,134). -> dict of (T,V,3)."""
+    """skeletons: list of (1,133,2), confs: list of (1,133). -> dict of (T,V,3)."""
     out, scale = {}, None
     for part in ["body", "left", "right", "face_all"]:
         kps, confidences = [], []
@@ -71,7 +71,7 @@ def load_part_kp(skeletons, confs):
 def pose_to_parts(keypoints, scores, max_length=256, seed=42):
     """rtmlib output -> {body,left,right,face_all} each (1, T, V, 3) float32.
 
-    keypoints: (T,1,134,2) already /[W,H]; scores: (T,1,134). Random frame
+    keypoints: (T,1,133,2) already /[W,H]; scores: (T,1,133). Random frame
     subsampling (seeded) when T > max_length, matching the repo.
     """
     duration = len(scores)

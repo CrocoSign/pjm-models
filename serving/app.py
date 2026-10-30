@@ -7,7 +7,7 @@ Quick start:
 
 Endpoints:
     GET  /            health + default model
-    GET  /models      list the 16 models (filter ?backend=unisign|spamo)
+    GET  /models      list the 14 models (filter ?backend=unisign|spamo)
     POST /translate   upload a video, get the decoded text
                       form fields: model, num_beams, max_new_tokens
 
