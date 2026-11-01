@@ -1,6 +1,6 @@
 # pjm-models (signsdk)
 
-Inference package for CrocoSign, our research on translating Polish Sign Language (PJM) video into English text. It wraps 16 trained checkpoints (Uni-Sign and SpaMo families) behind one Python call, runs them with ONNX Runtime (the package does not depend on PyTorch, see `pyproject.toml`) and downloads model graphs from [croco-corp/pjm-models](https://huggingface.co/croco-corp/pjm-models) on first use. A small FastAPI server is included.
+Inference package for CrocoSign, our research on translating Polish Sign Language (PJM) video into English text. It wraps 14 trained checkpoints (Uni-Sign and SpaMo families) behind one Python call, runs them with ONNX Runtime (the package does not depend on PyTorch, see `pyproject.toml`) and downloads model graphs from [CrocoSign/pjm-models](https://huggingface.co/CrocoSign/pjm-models) on first use. A small FastAPI server is included.
 
 This is a research prototype, not a replacement for an interpreter. Project site: https://crocosign.github.io
 
@@ -10,7 +10,7 @@ All repositories are under [github.com/crocosign](https://github.com/crocosign):
 
 CrocoSign (data preparation) -> SpaMo-PJM / Uni-Sign-PJM (training) -> **pjm-models** (inference) -> croco-sign-backend / croco-sign-frontend (app).
 
-The models were trained on clips from the Open Repository of the PJM Corpus (University of Warsaw), prepared by us. [croco-corp/pjm-data](https://huggingface.co/datasets/croco-corp/pjm-data) publishes the features, splits, translations and videos of the filtered set; [croco-corp/pjm-segments](https://huggingface.co/datasets/croco-corp/pjm-segments) holds the unfiltered segments as WebDataset shards. The corpus is licensed for non-commercial use only, so treat the models the same way.
+The models were trained on clips from the Open Repository of the PJM Corpus (University of Warsaw), prepared by us. [CrocoSign/pjm-data](https://huggingface.co/datasets/CrocoSign/pjm-data) publishes the features, splits, translations, videos and poses of the filtered set; [CrocoSign/pjm-segments](https://huggingface.co/datasets/CrocoSign/pjm-segments) holds the unfiltered segments as WebDataset shards. The corpus is licensed under CC BY-SA 4.0. The model weights are under CC BY-NC-SA 4.0, because the Uni-Sign and SpaMo starting checkpoints and the PHOENIX-2014T data are for non-commercial use.
 
 ## Requirements
 
@@ -34,7 +34,7 @@ uv run python -c "import signsdk; print(signsdk.from_pretrained('unisign-pjm-ope
 ```python
 import signsdk
 
-signsdk.list_models()                  # the 16 registered names
+signsdk.list_models()                  # the 14 registered names
 signsdk.describe_models("unisign")     # name, backend, language, description, split, source, bleu4
 
 model = signsdk.from_pretrained("unisign-pjm-openasl-ms")
@@ -54,27 +54,29 @@ In a long-running process use `signsdk.load(name)` instead of keeping handles yo
 Names follow `<family>-pjm-<transfer source>-<split>`. All output English.
 
 - `unisign-pjm-{cslnews,how2sign,openasl,scratch}-{ms,si}`: pose-based. RTMPose keypoints, graph encoders, mT5.
-- `spamo-pjm-{phoenix,scratch}-{ms,si}`: CLIP ViT-L/14 + VideoMAE-large, Flan-T5-XL.
-- `mod-spamo-pjm-{phoenix,scratch}-{ms,si}`: our SpaMo variant, adds hand-crop ViT and MediaPipe keypoint streams.
+- `spamo-pjm-phoenix-ms`, `spamo-pjm-scratch-{ms,si}`: CLIP ViT-L/14 + VideoMAE-large, Flan-T5-XL.
+- `mod-spamo-pjm-phoenix-ms`, `mod-spamo-pjm-scratch-{ms,si}`: our SpaMo variant, adds hand-crop ViT and MediaPipe keypoint streams.
+
+The SpaMo and Mod-SpaMo PHOENIX SI models were withdrawn: they started from the MS model, whose training set contains the SI test signers.
 
 "Transfer source" is the sign language the model was trained on before PJM. "scratch" means trained from scratch.
 
 ### Test results (BLEU-4)
 
-Single run per cell, test set. The numbers come from our training repositories ([SpaMo-PJM](https://github.com/crocosign/SpaMo-PJM), [Uni-Sign-PJM](https://github.com/crocosign/Uni-Sign-PJM)) at beam 5; the SDK defaults differ (4 beams, 100 new tokens), so results from this package can differ slightly. **MS** = multi-signer: test signers also appear in training. **SI** = signer-independent: test signers are never seen in training.
+Single run per cell, test set. The numbers come from our training repositories ([SpaMo-PJM](https://github.com/crocosign/SpaMo-PJM), [Uni-Sign-PJM](https://github.com/crocosign/Uni-Sign-PJM)) at beam 5 for SpaMo and beam 4 for Uni-Sign. The SDK defaults are 4 beams and 100 new tokens, so SpaMo results from this package can differ slightly. **MS** = multi-signer: test signers also appear in training. **SI** = signer-independent: test signers are never seen in training.
 
 | Model | Transfer source | MS | SI |
 | --- | --- | --- | --- |
-| Uni-Sign | How2Sign (ASL) | 7.61 | 4.77 |
-| Uni-Sign | OpenASL (ASL) | 7.38 | 4.79 |
-| Uni-Sign | CSL-News (Chinese) | 2.42 | 1.43 |
-| Uni-Sign | scratch | 1.62 | 0.72 |
-| SpaMo | PHOENIX-2014T (German) | 5.54 | 0.53 |
+| Uni-Sign | How2Sign (ASL) | 8.61 | 5.91 |
+| Uni-Sign | OpenASL (ASL) | 8.53 | 6.09 |
+| Uni-Sign | CSL-News (Chinese) | 5.16 | 2.41 |
+| Uni-Sign | scratch | 1.82 | 0.85 |
+| SpaMo | PHOENIX-2014T (German) | 5.54 | - |
 | SpaMo | scratch | 2.03 | 0.93 |
-| Mod-SpaMo | PHOENIX-2014T | 5.06 | 0.47 |
+| Mod-SpaMo | PHOENIX-2014T | 5.06 | - |
 | Mod-SpaMo | scratch | 1.56 | 1.17 |
 
-On BLEURT (the metric we trust most) Uni-Sign with OpenASL transfer is best: 39.9 on MS, 35.7 on SI. Reference sentences are DeepL translations of the Polish transcripts, so scores are against machine-translated references. Full tables and discussion are in our thesis (PJATK, in Polish).
+On BLEURT (the metric we trust most) Uni-Sign with OpenASL transfer is best: 42.43 on MS, 38.16 on SI. Uni-Sign SI uses the filtered SI split; SpaMo SI rows were trained and tested on the SI split before the quality filter (same signers). Reference sentences are DeepL translations of the Polish transcripts, so scores are against machine-translated references. Full tables and discussion are in our paper and in the Uni-Sign-PJM README.
 
 ### Speed
 
@@ -106,7 +108,7 @@ Environment variables (a `.env` in the working directory is loaded on import, re
 
 - `SIGNSDK_DEVICE`: `cuda` or `cpu` (default `cuda`; falls back to CPU when no GPU or not enough free memory)
 - `SIGNSDK_HOME`: model cache directory (default `~/.cache/signsdk`)
-- `SIGNSDK_HF_REPO`: artifact repository (default `croco-corp/pjm-models`)
+- `SIGNSDK_HF_REPO`: artifact repository (default `CrocoSign/pjm-models`)
 - `SIGNSDK_MAX_RESIDENT`: models kept loaded by `signsdk.load` (default 2; use 1 on a 24 GB card with SpaMo)
 
 ## Serving
@@ -126,14 +128,15 @@ The `Dockerfile` builds one image (GPU and serve extras) that runs on both GPU a
 
 ## Caveats
 
-- Results are for research. On signers never seen in training (SI) every model does poorly; the best reaches 4.79 BLEU-4.
+- Results are for research. On signers never seen in training (SI) every model does poorly; the best reaches 6.09 BLEU-4.
 - Most of the quality comes from the starting checkpoint, not the architecture. The best models started from American Sign Language checkpoints.
-- This repository is inference only. ONNX export, quantisation and publishing to Hugging Face are done in a separate build repository (`signsdk-build`), which is private. The ONNX export code is not public yet, so the ONNX files cannot be reproduced from public sources.
+- The ONNX graphs were exported with the scripts in `export/`: `export_unisign.py` runs from a Uni-Sign-PJM checkout, the `spamo_export_*.py` scripts from SpaMo-PJM. Quantisation and publishing to Hugging Face are done in a separate private build repository (`signsdk-build`).
+- For each Uni-Sign model, the ONNX package gives the same sentence as PyTorch in fp32 with batch size 1 on 20 test clips. The published test scores were decoded in bf16 and in batches, so single sentences can differ from them.
 
 ## License
 
-Our code is under the MIT licence (see `LICENSE`). The training data (PJM Corpus, University of Warsaw) is non-commercial only. The models build on Uni-Sign and SpaMo; their upstream terms apply to those parts.
+Our code is under the MIT licence (see `LICENSE`). The training data (PJM Corpus, University of Warsaw) is under CC BY-SA 4.0 and the model weights under CC BY-NC-SA 4.0. The models build on Uni-Sign and SpaMo; their upstream terms apply to those parts.
 
 ## Authors
 
-Wojciech Sieńko and Rostyslav Kovalenko, PJATK engineering thesis (field: Artificial Intelligence), supervised by dr Albert Śledzianowski, MBA. We build on [Uni-Sign](https://github.com/ZechengLi19/Uni-Sign) (Li et al., ICLR 2025) and [SpaMo](https://github.com/eddie-euijun-hwang/SpaMo) (Hwang et al., NAACL 2025).
+[Wojciech Sieńko](https://www.linkedin.com/in/wojciech-sie%C5%84ko/) and [Rostyslav Kovalenko](https://www.linkedin.com/in/rost-koff/), PJATK engineering thesis (Computer Science, specialisation in Artificial Intelligence), supervised by dr Albert Śledzianowski, MBA. We build on [Uni-Sign](https://github.com/ZechengLi19/Uni-Sign) (Li et al., ICLR 2025) and [SpaMo](https://github.com/eddie-euijun-hwang/SpaMo) (Hwang et al., NAACL 2025).

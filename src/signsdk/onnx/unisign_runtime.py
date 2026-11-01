@@ -30,7 +30,7 @@ class UniSignRuntime:
         rt = "cuda" if device == "cuda" else "cpu"
         prov = (["CUDAExecutionProvider"] if device == "cuda" and
                 "CUDAExecutionProvider" in ort.get_available_providers() else ["CPUExecutionProvider"])
-        self.wb = Wholebody(to_openpose=True, mode="lightweight", backend="onnxruntime", device=rt)
+        self.wb = Wholebody(to_openpose=False, mode="lightweight", backend="onnxruntime", device=rt)
         self.proj = ort.InferenceSession(f"{cache_dir}/projector.onnx", providers=prov)
         self.enc = ort.InferenceSession(f"{cache_dir}/encoder.onnx", providers=prov)
         self.dec = ort.InferenceSession(f"{cache_dir}/decoder.onnx", providers=prov)

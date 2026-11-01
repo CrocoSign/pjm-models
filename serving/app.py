@@ -7,7 +7,7 @@ Quick start:
 
 Endpoints:
     GET  /            health + default model
-    GET  /models      list the 16 models (filter ?backend=unisign|spamo)
+    GET  /models      list the 14 models (filter ?backend=unisign|spamo)
     POST /translate   upload a video, get the decoded text
                       form fields: model, num_beams, max_new_tokens
 
@@ -43,8 +43,8 @@ def models(backend: Optional[str] = None):
 async def translate(
     video: UploadFile = File(..., description="sign-language video clip (mp4)"),
     model: str = Form(signsdk.DEFAULT_MODEL),
-    num_beams: int = Form(4),
-    max_new_tokens: int = Form(64),
+    num_beams: int = Form(4, ge=1),
+    max_new_tokens: int = Form(64, ge=1),
 ):
     """Translate one uploaded sign-language video to text."""
     suffix = Path(video.filename or "clip.mp4").suffix or ".mp4"

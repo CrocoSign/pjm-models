@@ -1,9 +1,9 @@
-"""Resolve model artifacts from HF croco-corp/pjm-models, downloading on demand."""
+"""Resolve model artifacts from HF CrocoSign/pjm-models, downloading on demand."""
 import os
 from huggingface_hub import snapshot_download
 from .base import SignTranslatorError
 
-REPO = os.environ.get("SIGNSDK_HF_REPO", "croco-corp/pjm-models")
+REPO = os.environ.get("SIGNSDK_HF_REPO", "CrocoSign/pjm-models")
 
 def _home():
     return os.environ.get("SIGNSDK_HOME") or os.path.join(

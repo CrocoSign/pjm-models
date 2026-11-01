@@ -53,21 +53,19 @@ def from_pretrained(name: str, *, settings=None, **overrides) -> SignTranslator:
 
 # (name-suffix, source-label, split, bleu4) -- all PJM->English, pose-based.
 _UNISIGN = [
-    ("cslnews-ms",  "CSL-News", "ms", 2.42), ("cslnews-si",  "CSL-News", "si", 1.43),
-    ("how2sign-ms", "How2Sign", "ms", 7.61), ("how2sign-si", "How2Sign", "si", 4.77),
-    ("openasl-ms",  "OpenASL",  "ms", 7.38), ("openasl-si",  "OpenASL",  "si", 4.79),
-    ("scratch-ms",  "scratch",  "ms", 1.62), ("scratch-si",  "scratch",  "si", 0.72),
+    ("cslnews-ms",  "CSL-News", "ms", 5.16), ("cslnews-si",  "CSL-News", "si", 2.41),
+    ("how2sign-ms", "How2Sign", "ms", 8.61), ("how2sign-si", "How2Sign", "si", 5.91),
+    ("openasl-ms",  "OpenASL",  "ms", 8.53), ("openasl-si",  "OpenASL",  "si", 6.09),
+    ("scratch-ms",  "scratch",  "ms", 1.82), ("scratch-si",  "scratch",  "si", 0.85),
 ]
 
 # SpaMo=dual (CLIP ViT-L/14 + VideoMAE-large); Mod-SpaMo=quad (+ hand-ViT + MediaPipe).
 # (name, kind, source-label, split, bleu4)
 _SPAMO = [
     ("spamo-pjm-phoenix-ms",     "dual", "PHOENIX", "ms", 5.54),
-    ("spamo-pjm-phoenix-si",     "dual", "PHOENIX", "si", 0.53),
     ("spamo-pjm-scratch-ms",     "dual", "scratch", "ms", 2.03),
     ("spamo-pjm-scratch-si",     "dual", "scratch", "si", 0.93),
     ("mod-spamo-pjm-phoenix-ms", "quad", "PHOENIX", "ms", 5.06),
-    ("mod-spamo-pjm-phoenix-si", "quad", "PHOENIX", "si", 0.47),
     ("mod-spamo-pjm-scratch-ms", "quad", "scratch", "ms", 1.56),
     ("mod-spamo-pjm-scratch-si", "quad", "scratch", "si", 1.17),
 ]
