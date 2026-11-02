@@ -2,7 +2,7 @@
 
 Inference package for CrocoSign, our research on translating Polish Sign Language (PJM) video into English text. It wraps 14 trained checkpoints (Uni-Sign and SpaMo families) behind one Python call, runs them with ONNX Runtime (the package does not depend on PyTorch, see `pyproject.toml`) and downloads model graphs from [CrocoSign/pjm-models](https://huggingface.co/CrocoSign/pjm-models) on first use. A small FastAPI server is included.
 
-This is a research prototype, not a replacement for an interpreter. Project site: https://crocosign.github.io
+This is a research prototype, not a replacement for an interpreter. Project site: https://crocosign.pl
 
 ## Where this fits
 
